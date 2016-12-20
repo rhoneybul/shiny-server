@@ -448,6 +448,8 @@ server <- shinyServer(function(input, output,session) {
       date <- "2016-02-10"
     }
     
+    db <- commdb
+    
     db.before <- db[grep(paste0(seq(as.Date(date) - 8,as.Date(date) - 1,"days"),collapse = "|"),db$COMMENT_CREATED),]
     db.day <- db[which(db$COMMENT_CREATED == date),]
     db.after <- db[grep(paste0(seq(as.Date(date) + 1,as.Date(date) + 8,"days"),collapse = "|"),db$COMMENT_CREATED),]
