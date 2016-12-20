@@ -1,0 +1,422 @@
+---
+output: 
+  pdf_document:
+      latex_engine: xelatex
+mainfont: Verdana
+theme: united
+always_allow_html: yes
+
+header-includes:
+    - \usepackage{fancyhdr}
+    - \usepackage{hyperref}
+    - \usepackage{graphicx}
+    - \hypersetup{linkcolor = blue}
+    - \pagestyle{fancy}
+    - \fancyhead[LE,RO]{© More Than Ideas}
+    - \fancyhead[LE,LO]{\thepage}
+---
+
+\thispagestyle{empty}
+\begin{center}
+\includegraphics[width=10cm,height=10cm]{"www/morethanideas.jpeg"}
+\end{center}
+
+\vspace{4cm}
+
+\begin{center}
+{\Huge `r eventSelect`}
+
+\vspace{0.3cm}
+
+{`r paste0(format(Sys.Date(),"%B %d"),", ", format(Sys.Date(),"%Y"))`}
+
+\end{center}
+\newpage
+
+\tableofcontents
+
+\newpage
+
+```{r,echo = FALSE}
+
+    if(eventSelect == "Pauline Hanson Comments"){
+      date <- "2016-11-28"
+    }
+    if(eventSelect == "Linda Burney Elected"){
+      date <- "2016-08-30" 
+    }
+    if(eventSelect == "Closing the Gap Report"){
+      date <- "2016-02-10"
+    }
+    
+    db.before <- db[grep(paste0(seq(as.Date(date) - 8,as.Date(date) - 1,"days"),collapse = "|"),db$COMMENT_CREATED),]
+    db.day <- db[which(db$COMMENT_CREATED == date),]
+    db.after <- db[grep(paste0(seq(as.Date(date) + 1,as.Date(date) + 8,"days"),collapse = "|"),db$COMMENT_CREATED),]
+    db.period <- db[grep(paste0(seq(as.Date(date) - 8,as.Date(date) + 8,"days"),collapse = "|"),db$COMMENT_CREATED),]
+    
+    period_frequencies <- as.data.frame(table(db.period$COMMENT_CREATED))
+    colnames(period_frequencies) <- c("Date","Frequency")
+    
+    ### ===============
+    
+    ## BEFORE 
+    
+    ## ================
+    
+    before.comments <- db.before$COMMENT
+    
+    comments <- paste(" ",paste(before.comments,collapse = " ")," ")
+    comments <- gsub("[[:punct:]]|[0-9]","",comments)
+    comments <- tolower(comments)
+    
+    comments_string <- paste0(" ",comments," ")
+    comments <- strsplit(comments," ")
+    
+    ## MAKE THE KEYWORD TABLE
+    kw.tab.before <- table(comments)
+    kw.tab.before <- as.data.frame(kw.tab.before)
+    kw.tab.before$comments <- gsub("\n","",kw.tab.before$comments)
+    
+    ## REMOVE STOPWORDS
+    stopwords <- gsub("[[:punct:]]","",stopwords("en"))
+    kw.remove <- c()
+    for(ii in 1:length(stopwords)){
+      if(any(kw.tab.before$comments == stopwords[ii])){
+        kw.remove <- c(kw.remove,which(kw.tab.before$comments == stopwords[ii]))
+      }
+    }
+    
+    count.before <- c()
+    for(ii in 1:length(keywords)){
+      count.before[ii] <- 0
+      for(aa in 1:length(keywords[[ii]])){
+        count.before[ii] <- count.before[ii] + str_count(comments_string,as.character(keywords[[ii]][aa]))
+      }
+    }
+
+    countdf.before <- data.frame(count.before,kwList$Placeholder)
+    colnames(countdf.before) <- c("kwCount","kw")
+
+    countdf.before <- countdf.before[order(-countdf.before$kwCount),]
+
+    if(any(countdf.before$kwCount == 0)){
+      countdf.before <- countdf.before[-which(countdf.before$kwCount == 0),]
+    }
+    colnames(countdf.before) <- c("Frequency","Theme")
+    
+    countdf.before <- countdf.before[1:20,]
+    
+    kw.tab.before <- kw.tab.before[-kw.remove,]
+    
+    kw.tab.before <- kw.tab.before[order(-kw.tab.before$Freq),]
+    
+    kw.tab.before$comments <- gsub("\\s+","",kw.tab.before$comments)
+    kw.tab.before <- kw.tab.before[-which(kw.tab.before$comments == ""),]
+    
+    kw.tab.before <- kw.tab.before[1:20,]
+    
+    colnames(kw.tab.before) <- c("Comment","Frequency")
+    
+    substr(kw.tab.before$Comment,1,1) <- toupper(substr(kw.tab.before$Comment,1,1))
+    
+    ## =========
+    
+    ##   DAY
+    
+    ## =========
+    
+    day.comments <- db.day$COMMENT
+    
+    comments <- paste(" ",paste(day.comments,collapse = " ")," ")
+    comments <- gsub("[[:punct:]]|[0-9]","",comments)
+    comments <- tolower(comments)
+    
+    comments_string <- paste0(" ",comments," ")
+    comments <- strsplit(comments," ")
+    
+    ## MAKE THE KEYWORD TABLE
+    kw.tab.day <- table(comments)
+    kw.tab.day <- as.data.frame(kw.tab.day)
+    kw.tab.day$comments <- gsub("\n","",kw.tab.day$comments)
+    
+    ## REMOVE STOPWORDS
+    stopwords <- gsub("[[:punct:]]","",stopwords("en"))
+    kw.remove <- c()
+    for(ii in 1:length(stopwords)){
+      if(any(kw.tab.day$comments == stopwords[ii])){
+        kw.remove <- c(kw.remove,which(kw.tab.day$comments == stopwords[ii]))
+      }
+    }
+    
+    count.day <- c()
+    for(ii in 1:length(keywords)){
+      count.day[ii] <- 0
+      for(aa in 1:length(keywords[[ii]])){
+        count.day[ii] <- count.day[ii] + str_count(comments_string,as.character(keywords[[ii]][aa]))
+      }
+    }
+
+    countdf.day <- data.frame(count.day,kwList$Placeholder)
+    colnames(countdf.day) <- c("kwCount","kw")
+    
+    countdf.day <- countdf.day[1:20,]
+
+    countdf.day <- countdf.day[order(-countdf.day$kwCount),]
+
+    if(any(countdf.day$kwCount == 0)){
+      countdf.day <- countdf.day[-which(countdf.day$kwCount == 0),]
+    }
+    colnames(countdf.day) <- c("Frequency","Theme")
+    
+    kw.tab.day <- kw.tab.day[-kw.remove,]
+    
+    kw.tab.day <- kw.tab.day[order(-kw.tab.day$Freq),]
+    
+    kw.tab.day$comments <- gsub("\\s+","",kw.tab.day$comments)
+    kw.tab.day <- kw.tab.day[-which(kw.tab.day$comments == ""),]
+    
+    kw.tab.day <- kw.tab.day[1:20,]
+    
+    colnames(kw.tab.day) <- c("Comment","Frequency")
+    
+    substr(kw.tab.day$Comment,1,1) <- toupper(substr(kw.tab.day$Comment,1,1))
+    
+    
+    
+    ## ========================
+    ##           AFTER
+    ## ========================
+    
+    after.comments <- db.after$COMMENT
+    
+    comments <- paste(" ",paste(after.comments,collapse = " ")," ")
+    comments <- gsub("[[:punct:]]|[0-9]","",comments)
+    comments <- tolower(comments)
+    
+    comments_string <- paste0(" ",comments," ")
+    comments <- strsplit(comments," ")
+    
+    ## MAKE THE KEYWORD TABLE
+    kw.tab.after <- table(comments)
+    kw.tab.after <- as.data.frame(kw.tab.after)
+    kw.tab.after$comments <- gsub("\n","",kw.tab.after$comments)
+    
+    ## REMOVE STOPWORDS
+    stopwords <- gsub("[[:punct:]]","",stopwords("en"))
+    kw.remove <- c()
+    for(ii in 1:length(stopwords)){
+      if(any(kw.tab.after$comments == stopwords[ii])){
+        kw.remove <- c(kw.remove,which(kw.tab.after$comments == stopwords[ii]))
+      }
+    }
+    
+    count.after <- c()
+    for(ii in 1:length(keywords)){
+      count.after[ii] <- 0
+      for(aa in 1:length(keywords[[ii]])){
+        count.after[ii] <- count.after[ii] + str_count(comments_string,as.character(keywords[[ii]][aa]))
+      }
+    }
+
+    countdf.after <- data.frame(count.after,kwList$Placeholder)
+    colnames(countdf.after) <- c("kwCount","kw")
+
+    countdf.after <- countdf.after[order(-countdf.after$kwCount),]
+
+    if(any(countdf.after$kwCount == 0)){
+      countdf.after <- countdf.after[-which(countdf.after$kwCount == 0),]
+    }
+    colnames(countdf.after) <- c("Frequency","Theme")
+    
+    countdf.after <- countdf.after[1:20,]
+    
+    kw.tab.after <- kw.tab.after[-kw.remove,]
+    
+    kw.tab.after <- kw.tab.after[order(-kw.tab.after$Freq),]
+    
+    kw.tab.after$comments <- gsub("\\s+","",kw.tab.after$comments)
+    kw.tab.after <- kw.tab.after[-which(kw.tab.after$comments == ""),]
+    
+    kw.tab.after <- kw.tab.after[1:20,]
+    
+    colnames(kw.tab.after) <- c("Comment","Frequency")
+    
+    substr(kw.tab.after$Comment,1,1) <- toupper(substr(kw.tab.after$Comment,1,1))
+    
+    
+    
+    period_frequencies <- as.data.frame(table(db.period$COMMENT_CREATED))
+    colnames(period_frequencies) <- c("Date","Frequency")
+    
+    
+    
+    dbCommentsPeriod <- db.period[order(as.numeric(as.character(db.period$COMMENT_LIKES)),decreasing = TRUE),]
+    dbCommentsPeriod <- dbCommentsPeriod[1:10,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+    colnames(dbCommentsPeriod) <- c("Comment","Number of Likes","Comment Date")
+    
+    period.posts <- unique(db.period$POST)
+    
+    post.likes <- c()
+    for(pp in 1:length(period.posts)){
+      post.likes[pp] <- sum(as.numeric(db.period$COMMENT_LIKES[which(db.period$POST == period.posts[pp])]))
+    }
+    
+    post.likes.df <- data.frame(period.posts,post.likes)
+    post.likes.df <- post.likes.df[order(post.likes.df$post.likes,decreasing = TRUE),]
+    colnames(post.likes.df) <- c("Post" ,"Likes")
+    
+    post.sources <- c()
+    post.dates <- c()
+    for(ii in 1:nrow(post.likes.df)){
+      post.sources[ii] <- db.period$POST_FROM[which(db.period$POST == post.likes.df$Post[ii])[1]]
+      post.dates[ii] <- substr(db.period$POST_CREATED[which(db.period$POST == post.likes.df$Post[ii])[1]],1,10)
+    }
+    
+    post.likes.df <- data.frame(post.likes.df,post.sources,post.dates)
+    
+    post.likes.df <- post.likes.df[1:10,c(1,3,4)]
+    
+    colnames(post.likes.df) <- c("Post","Source","Date")
+    
+    post.likes.df$Post <- gsub("\\n"," ",as.character(post.likes.df$Post))
+   
+```
+
+## Week Leading Up To Event - Keywords
+
+```{r,echo = FALSE}
+
+      p <- ggplot(data=kw.tab.before, aes(x = Comment, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+      p + labs("Week Previous")
+      
+```
+
+\newpage
+
+## Week Leading Up To Event - Themes
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf.before, aes(x = Theme, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+      p
+      
+```
+
+
+
+\newpage
+
+## Day Of Event - Keywords
+
+```{r,echo = FALSE}
+    
+      p <- ggplot(data=kw.tab.day, aes(x = Comment, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      
+       p + labs("Day of Event")
+      
+```
+
+\newpage
+
+## Day Of Event - Themes
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf.day, aes(x = Theme, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+      p
+      
+```
+
+\newpage
+
+## Week After Event - Keywords
+
+```{r,echo = FALSE}
+
+      p <- ggplot(data=kw.tab.after, aes(x = Comment, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      
+     p + labs("Week After")
+
+```
+
+\newpage
+
+## Week After Event - Themes
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf.after, aes(x = Theme, y = Frequency, group=1)) +
+        geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+        theme(axis.ticks.x = element_blank()) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      
+      p
+      
+```
+
+\newpage
+
+## Facebook Activity Over Period
+
+```{r,echo = FALSE}
+      p <- ggplot(data=period_frequencies, aes(x = Date, y = Frequency, group=1)) +
+        geom_line(colour="#42B874", size=0.5) +
+        geom_point(colour = "#504f51",size = 0.3) +
+        theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+      
+      p + labs("Facebook Activity Over Period")     
+
+```
+
+\newpage
+
+## Top Posts During Period
+
+```{r,echo = FALSE}
+
+posts <- post.likes.df$Post
+
+for(ii in 1:length(posts)){
+  post <- strsplit(as.character(posts[ii])," ")[[1]]
+  if(any(grepl("^http\\:\\/\\/",post))){
+    post <- post[-grep("^http\\:\\/\\/",post)]
+    post <- paste(post,collapse = " ")
+    posts[ii] <- post
+  }
+}
+
+post.likes.df$Post <- posts
+
+row.names(post.likes.df) <- NULL
+pander(post.likes.df,split.cells = c(40,15,15))
+```
+
+\newpage
+
+## Top Comments During Period
+
+```{r,echo = FALSE}
+row.names(dbCommentsPeriod) <- NULL
+pander(dbCommentsPeriod,split.cells = c(40,15,15))
+```
+
+
+    

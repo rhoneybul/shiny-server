@@ -1,0 +1,976 @@
+---
+output: 
+  pdf_document:
+      latex_engine: xelatex
+mainfont: Verdana
+theme: united
+always_allow_html: yes
+
+header-includes:
+    - \usepackage{fancyhdr}
+    - \usepackage{hyperref}
+    - \usepackage{graphicx}
+    - \hypersetup{linkcolor = blue}
+    - \pagestyle{fancy}
+    - \fancyhead[LE,RO]{© More Than Ideas}
+    - \fancyhead[LE,LO]{\thepage}
+---
+
+\thispagestyle{empty}
+\begin{center}
+\includegraphics[width=10cm,height=10cm]{"www/morethanideas.jpeg"}
+\end{center}
+
+\vspace{4cm}
+
+\begin{center}
+{\Huge Aboriginal Attitudes}
+
+\vspace{0.3cm}
+
+{`r paste0(format(Sys.Date(),"%B %d"),", ", format(Sys.Date(),"%Y"))`}
+
+\end{center}
+\newpage
+
+\tableofcontents
+
+\newpage
+
+#January
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "01"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+\newpage
+
+#### Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+
+\newpage
+
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+#February
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "02"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+
+\newpage
+
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+#March
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "03"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+#April
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "04"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+
+\newpage
+
+#May
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "05"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#June
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "06"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#July
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "07"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#August
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "08"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#September
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "09"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#October
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "10"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#November
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "11"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+\newpage
+
+
+#December
+
+#### Frequency Trend
+
+The following shows the frequency of comments for each day where data was gathered in the particular month. 
+
+```{r,echo = FALSE}
+
+month_str <- "12"
+
+db.i <- db[which(substr(db$COMMENT_CREATED,6,7) == month_str),]
+
+date_frequencies <- as.data.frame(table(db.i$COMMENT_CREATED))
+colnames(date_frequencies) <- c("Date","Frequency")
+
+p <- ggplot(data=date_frequencies, aes(x = Date, y = Frequency, group=1)) +
+    geom_line(colour="#42B874", size=0.5) +
+    geom_point(colour = "#504f51",size = 0.3) +
+    theme(axis.ticks.x = element_blank()) + 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p
+```
+\newpage
+
+#####Top Comments
+
+```{r,echo = FALSE}
+
+dbComments <- db.i[order(as.numeric(as.character(db.i$COMMENT_LIKES)),decreasing = TRUE),]
+dbComments <- dbComments[1:5,c("COMMENT","COMMENT_LIKES","COMMENT_CREATED")]
+colnames(dbComments) <- c("Comment","Likes","Date")
+split.cells = c(40,15,15)
+    
+row.names(dbComments) <- NULL
+pander(dbComments,row.names = FALSE,split.cells = c(40,15,15))
+```
+\newpage
+
+#####Top Keywords
+
+The following shows the top keywords that have been mentioned during the conversation for this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+source("dataProcessReporting.R")
+
+p <- ggplot(data=kw.tab, aes(x = Comment, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank(),axis.text.x = element_text(angle = 45, hjust = 1))
+p
+    
+```
+
+\newpage
+
+####Top Themes
+
+The following shows the frequency of themes that have been discussed during this period.
+
+\vspace{0.5cm}
+
+```{r,echo = FALSE}
+
+p <- ggplot(data=countdf, aes(x = Theme, y = Frequency, group=1)) +
+    geom_bar(stat = "identity",colour = "#42B874",fill = "#42B874") +
+    theme(axis.ticks.x = element_blank()) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
