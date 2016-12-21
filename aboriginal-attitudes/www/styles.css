@@ -96,6 +96,16 @@ h3 {
 	font-weight: 200;
 }
 
+h4 {
+	color: black;
+	font-weight: 200;
+}
+
+.eventTitles {
+	color: white;
+	font-weight: 200;
+}
+
 #plot img {
 	width: 100%;
 }

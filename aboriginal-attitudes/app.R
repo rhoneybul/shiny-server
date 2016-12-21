@@ -144,21 +144,22 @@ ui <- navbarPage("Aboriginal Attitudes",
                
                fluidRow(
                  column(4,
-                        tags$h3("Week Before"),
+                        tags$h4("Week Before",style = 'text-align:center'),
                         plotlyOutput('event1')
                         ),
                  column(4,
-                        tags$h3("On Day of Event"),
+                        tags$h4("On Day of Event",style = 'text-align:center'),
                         plotlyOutput('event2')
                         ),
                  column(4,
-                        tags$h3("Week After"),
+                        tags$h4("Week After",style = 'text-align:center'),
                         plotlyOutput('event3')
                         )
                ),
                
                fluidRow(
                  column(12,
+                        tags$h4("Conversation Frequency Over Two Week Period",style = 'text-align:center'),
                         plotlyOutput("eventTimeSeries")
                         )
                ),
