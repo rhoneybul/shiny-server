@@ -1,7 +1,5 @@
 library('rvest')
 
-setwd("~/Desktop/RTH/Clients/Shiny-Server/Bet")
-
 # url <- 'http://www.sportsbet.com.au/live-betting'
 url <- "365/Index/index.html"
 
