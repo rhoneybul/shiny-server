@@ -20,11 +20,11 @@ server <- shinyServer(function(input, output) {
     observeEvent(input$run, {
       cat('Running Code')
       url <- 'http://www.sportsbet.com.au/live-betting'
-      cat('Getting URL')
+      cat('Getting URL', file = stderr())
       html <- read_html(url)
-      cat('Getting Nodes')
+      cat('Getting Nodes', file = stderr())
       htmlNodes <- html_nodes(html,'td')
-      cat('Getting Text')
+      cat('Getting Text', file = stderr())
       htmlText <- html_text(htmlNodes)
       htmlText <- gsub('\n|\t|^\\s+','',htmlText[1:(grep('\r',htmlText)[1]-1)])
       htmlText <- htmlText[-which(htmlText == "")]
