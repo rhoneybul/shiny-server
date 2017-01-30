@@ -2,6 +2,8 @@ library(shiny)
 library(rvest)
 library(DT)
 
+options(warn = -1)
+
 # Define UI for application that draws a histogram
 ui <- shinyUI(fluidPage(
    
@@ -15,7 +17,7 @@ server <- shinyServer(function(input, output) {
     ii <- 1
     jj <- 1
     while(ii < 1000){
-      if(format(Sys.time(),'%M') == '30'){
+      if(as.numeric(format(Sys.time(),'%M')) < 40){
         url <- 'http://www.sportsbet.com.au/live-betting'
         
         html <- read_html(url)
