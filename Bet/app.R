@@ -22,17 +22,17 @@ server <- shinyServer(function(input, output) {
       
       
       
-      output$text1 <- renderText({ 
-        files <- list.files("Data")
-        file <- read.csv(paste0('Data/',files[1]))
+    #  output$text1 <- renderText({ 
+    #    files <- list.files("Data")
+    #    file <- read.csv(paste0('Data/',files[1]))
          
-        as.character(file$Entry[3])
-      })
+    #    as.character(file$Entry[3])
+    #  })
       a = c(1,2,2)
       b = c(4,5,6)
       df <- data.frame(a,b)
       
-      write.csv(df,paste0(format(Sys.time(),"%X"),'.csv'))
+      write.csv(df,paste0('Data/',format(Sys.time(),"%X"),'.csv'))
       
       # cat('Running Code')
       # url <- 'http://www.sportsbet.com.au/live-betting'
