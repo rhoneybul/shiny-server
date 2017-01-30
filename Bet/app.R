@@ -32,7 +32,7 @@ server <- shinyServer(function(input, output) {
       b = c(4,5,6)
       df <- data.frame(a,b)
       
-      write.csv(df,"Data/data.csv")
+      write.csv(df,paste0("Data/",format(Sys.time(),"%X"),'.csv'))
       
       # cat('Running Code')
       # url <- 'http://www.sportsbet.com.au/live-betting'
