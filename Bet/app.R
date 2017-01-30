@@ -3,33 +3,40 @@ library(rvest)
 
 options(warn = -1)
 
+if(!dir.exists('Data')){
+  dir.create('Data')
+}
+
 # Define UI for application that draws a histogram
 ui <- shinyUI(fluidPage(
    
    # Application title
     actionButton("run", "Run Code"),
     textOutput("text1")
+    
 ))
 
 # Define server logic required to draw a histogram
 server <- shinyServer(function(input, output) {
-    
+  
     # ii <- 1
     # jj <- 1
     # while(ii < 1000){
     #   if(as.numeric(format(Sys.time(),'%M')) < 40){
     observeEvent(input$run, {
       
+      
       output$text1 <- renderText({ 
             list.files('Data')
           })
       
-    #  output$text1 <- renderText({ 
-    #    files <- list.files("Data")
-    #    file <- read.csv(paste0('Data/',files[1]))
-         
-    #    as.character(file$Entry[3])
-    #  })
+      #  output$text1 <- renderText({ 
+      #    files <- list.files("Data")
+      #    file <- read.csv(paste0('Data/',files[1]))
+           
+      #    as.character(file$Entry[3])
+      #  })
+      
       a = c(1,2,2)
       b = c(4,5,6)
       df <- data.frame(a,b)
@@ -60,7 +67,6 @@ server <- shinyServer(function(input, output) {
     #     next()
     #   }
     # }
-    # 
 
 })
 # Run the application 
