@@ -28,6 +28,12 @@ server <- shinyServer(function(input, output) {
         
         as.character(file$Entry[3])
       })
+      a = c(1,2,2)
+      b = c(4,5,6)
+      df <- data.frame(a,b)
+      
+      write.csv(df,"Data/data.csv")
+      
       # cat('Running Code')
       # url <- 'http://www.sportsbet.com.au/live-betting'
       # cat('Getting URL', file = stderr())
