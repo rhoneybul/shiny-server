@@ -21,7 +21,7 @@ server <- shinyServer(function(input, output) {
     observeEvent(input$run, {
       
       output$text1 <- renderText({ 
-            "BABH"
+            list.files('Data')
           })
       
     #  output$text1 <- renderText({ 
