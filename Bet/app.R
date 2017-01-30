@@ -22,7 +22,6 @@ server <- shinyServer(function(input, output) {
         htmlNodes <- html_nodes(html,'td')
         htmlText <- html_text(htmlNodes)
         
-        
         htmlText <- gsub('\n|\t|^\\s+','',htmlText[1:(grep('\r',htmlText)[1]-1)])
         htmlText <- htmlText[-which(htmlText == "")]
         
