@@ -15,7 +15,7 @@ server <- shinyServer(function(input, output) {
     ii <- 1
     jj <- 1
     while(ii < 1000){
-      if(format(Sys.time(),'%M') == 50 || format(Sys.time(),'%M') == 52){
+      if(format(Sys.time(),'%M') == '20'){
         url <- 'http://www.sportsbet.com.au/live-betting'
         
         html <- read_html(url)
