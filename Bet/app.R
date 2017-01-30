@@ -20,9 +20,9 @@ server <- shinyServer(function(input, output) {
     #   if(as.numeric(format(Sys.time(),'%M')) < 40){
     observeEvent(input$run, {
       
-      output$text1 <- renderText({
-        "DONE" 
-      )}
+      output$text1 <- renderText({ 
+            "BABH"
+          })
       
     #  output$text1 <- renderText({ 
     #    files <- list.files("Data")
