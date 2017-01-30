@@ -29,11 +29,11 @@ server <- shinyServer(function(input, output) {
       htmlText <- gsub('\n|\t|^\\s+','',htmlText[1:(grep('\r',htmlText)[1]-1)])
       htmlText <- htmlText[-which(htmlText == "")]
 
-      df <- data.frame(htmlText[1:20],format(Sys.time(),'%X'))
-      colnames(df) <- c('Entry','Time')
-      cat('Writing CSV')
-      write.csv(df,paste0("Data/",format(Sys.time(),'%X'),'.csv'),row.names = F) 
-      cat("Finished")
+      # df <- data.frame(htmlText[1:20],format(Sys.time(),'%X'))
+      # colnames(df) <- c('Entry','Time')
+      # cat('Writing CSV')
+      # write.csv(df,paste0("Data/",format(Sys.time(),'%X'),'.csv'),row.names = F) 
+      # cat("Finished")
     })
         
         # cat(jj)
