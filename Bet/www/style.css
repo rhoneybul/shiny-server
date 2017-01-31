@@ -1,0 +1,11 @@
+.has-items {
+  margin: 0 auto;
+  width: 400px;
+  text-align:center;
+}
+
+label.control-label, .selectize-control.single{ 
+  display: table-cell; text-align: center; vertical-align: middle;
+} 
+
+.form-group { display: table-row;}
