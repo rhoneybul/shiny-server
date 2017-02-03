@@ -1,9 +1,43 @@
 library('rvest')
-library('RSelenium')
 
 ## FUNCTIONS
 
-basket_scrape = function() {
+get_nba= function(){
+  espn <- 'https://sports.yahoo.com/nba/scoreboard/'
+  
+  espn <- read_html(espn)
+  espn <- html_nodes(espn,'span')
+  scoreHTMLnba <- html_text(espn)
+  
+  scoreHTMLnba <- scoreHTMLnba[5:length(scoreHTMLnba)]
+  scoreHTMLnba <- scoreHTMLnba[-which(scoreHTMLnba == "")]
+}
+
+get_ncaa = function(){
+  ncaa <- 'http://jsonline.sportsdirectinc.com/sports-scores/College-Basketball-Scores-Matchups.aspx'
+  
+  ncaa <- read_html(ncaa)
+  ncaa <- html_nodes(ncaa,'.sdi-so-title , .sdi-datahead-sub')
+  scoreHTMLncaa <- html_text(ncaa)
+  return(scoreHTMLncaa)
+}
+
+title_comp <- strsplit(gsub('\\s+$','',gsub(' At | - .*',' ',paste(TITLES,collapse = " ")))," ")[[1]]
+
+scoreHTMLnba <- get_nba()
+
+while(length(scoreHTMLnba) <= 1){
+  print('nba failed once')
+  scoreHTMLnba <- get_nba()
+}
+
+scoreHTMLncaa <- get_ncaa()
+while(length(scoreHTMLncaa) == 0){
+  print('NCAA failed once')
+  scoreHTMLncaa <- get_ncaa()
+}
+
+if(length(TITLES) != 0 || length(htmlNodes) != 0){
   
   overs = c()
   win_1 <- c()
@@ -18,7 +52,7 @@ basket_scrape = function() {
       
       prog_amount <- tt / length(TITLES)
       
-      incProgress(amount = prog_amount)
+      # incProgress(amount = prog_amount)
       
       ## GET TIME ##
       
@@ -42,6 +76,10 @@ basket_scrape = function() {
           }
         }
         
+        if(length(grep(paste(0:9,collapse = "|"),game_time[ii])) == 0){
+          game_time[tt] <- "NA"
+        }
+        
       } else{
         
         game_type[tt] <- 'NCAA'
@@ -60,6 +98,10 @@ basket_scrape = function() {
           
           game_time[tt] <- scoreHTMLncaa[as.numeric(grep_ii) + 1]
           
+        }
+        
+        if(length(grep(paste(0:9,collapse = "|"),game_time[ii])) == 0){
+          game_time[tt] <- "NA"
         }
       }
       
@@ -125,60 +167,31 @@ basket_scrape = function() {
       print(tt)
     }
     
-    TITLES <- paste(TITLES," - ",format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%a %b %d"))
+    TITLES <- paste0(TITLES,"  -  ",format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%a %b %d"),'.csv')
     
     for(tt in 1:length(TITLES)){
       df_title <- data.frame(format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X"),game_time[tt],period[tt],points[tt],overs[tt],win_1[tt],win_2[tt],hand[tt],game_type[tt])
       colnames(df_title) <- c('Time','GameTime','Period','Points','Line','MatchAway','MatchHome','HandicapLine','Type')
-      if(!(TITLES[tt] %in% gsub('.csv$','',list.files('Data')))){
-        write.csv(df_title,paste0("Data/",TITLES[tt],".csv"),row.names = F)
+      data.dir <- list.files('Data')
+      if(!(TITLES[tt] %in% data.dir)){
+        file.name <- paste0("Data/",TITLES[tt])
+        if(length(grep('-',file.name)) > 1){
+          file.name <- paste(strsplit(file.name,'-')[[1]][1:2],collapse = "-")
+        }
+        print(file.name)
+        write.csv(df_title,file.name,row.names = F)
       } else{
-        df_tt <- read.csv(paste0('Data/',TITLES[tt],'.csv'))
+        file.name <- paste0("Data/",TITLES[tt])
+        df_tt <- read.csv(file.name)
         df_title <- rbind(df_tt,df_title)
-        write.csv(df_title,paste0("Data/",TITLES[tt],".csv"),row.names = F)
+        if(length(grep('-',file.name)) > 1){
+          file.name <- paste(strsplit(file.name,'-')[[1]][1:2],collapse = "-")
+        }
+        print(file.name)
+        write.csv(df_title,file.name,row.names = F)
       }
     }
   }
-}
-
-get_nba= function(){
-  espn <- 'https://sports.yahoo.com/nba/scoreboard/'
-  
-  espn <- read_html(espn)
-  espn <- html_nodes(espn,'span')
-  scoreHTMLnba <- html_text(espn)
-  
-  scoreHTMLnba <- scoreHTMLnba[5:length(scoreHTMLnba)]
-  scoreHTMLnba <- scoreHTMLnba[-which(scoreHTMLnba == "")]
-}
-
-get_ncaa = function(){
-  ncaa <- 'http://jsonline.sportsdirectinc.com/sports-scores/College-Basketball-Scores-Matchups.aspx'
-  
-  ncaa <- read_html(ncaa)
-  ncaa <- html_nodes(ncaa,'.sdi-so-title , .sdi-datahead-sub')
-  scoreHTMLncaa <- html_text(ncaa)
-  return(scoreHTMLncaa)
-}
-
-title_comp <- strsplit(gsub('\\s+$','',gsub(' At | - .*',' ',paste(TITLES,collapse = " ")))," ")[[1]]
-
-scoreHTMLnba <- get_nba()
-
-while(length(scoreHTMLnba) <= 1){
-  print('nba failed once')
-  scoreHTMLnba <- get_nba()
-}
-
-scoreHTMLncaa <- get_ncaa()
-while(length(scoreHTMLncaa) == 0){
-  print('NCAA failed once')
-  scoreHTMLncaa <- get_ncaa()
-}
-
-if(length(TITLES) != 0 || length(htmlNodes) != 0){
-  
-    basket_scrape()
   
 } else{
   print("No US Games")
