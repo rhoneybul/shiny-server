@@ -1,7 +1,5 @@
 library(shiny)
 library(rvest)
-library(ggplot2)
-library(plotly)
 
 options(warn = -1)
 
@@ -50,12 +48,11 @@ ui <- shinyUI(fluidPage(
              
              fluidRow(
                column(8,
-                      tags$h3('Over/Under',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
-                      plotlyOutput("plot1")
+                      plotOutput("plot1")
                ),
                column(4,
-                      tags$h4('Game Stats',style = 'text-align:center;padding-top:30px;font-weight:200'),
-                      tags$h4(textOutput("text1"),style = "padding-top:35px;font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;"),
+                      tags$h4('Game Stats',style = 'text-align:center;padding-top:15px;font-weight:200'),
+                      tags$h4(textOutput("text1"),style = "padding-top:15px;font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;"),
                       tags$h4(textOutput("text2"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
                       tags$h4(textOutput("text3"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
                       tags$h4(textOutput("text4"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
@@ -69,12 +66,12 @@ ui <- shinyUI(fluidPage(
              
              fluidRow(
                
-               column(5,align = 'center',
+               column(5,
                       tableOutput('table')
                ),
                column(7,
-                      tags$h3('Points Per Minute',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
-                      plotlyOutput('plot2')     
+                      tags$h3('Points Per Minute',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1em'),
+                      plotOutput('plot2')     
                )
              )
              
@@ -106,49 +103,49 @@ server <- shinyServer(function(input, output) {
       titleText
     })
     
-    withProgress(message = 'Getting Data & Plotting',value = 0, {
+    withProgress(message = 'Getting Data',value = 0, {
       library('rvest')
-
+      
       ## FUNCTIONS
-
+      
       get_nba= function(){
         espn <- 'https://sports.yahoo.com/nba/scoreboard/'
-
+        
         espn <- read_html(espn)
         espn <- html_nodes(espn,'span')
         scoreHTMLnba <- html_text(espn)
-
+        
         scoreHTMLnba <- scoreHTMLnba[5:length(scoreHTMLnba)]
         scoreHTMLnba <- scoreHTMLnba[-which(scoreHTMLnba == "")]
         return(scoreHTMLnba)
       }
-
+      
       get_ncaa = function(){
         ncaa <- 'http://jsonline.sportsdirectinc.com/sports-scores/College-Basketball-Scores-Matchups.aspx'
-
+        
         ncaa <- read_html(ncaa)
         ncaa <- html_nodes(ncaa,'.sdi-so-title , .sdi-datahead-sub')
         scoreHTMLncaa <- html_text(ncaa)
         return(scoreHTMLncaa)
       }
-
+      
       title_comp <- strsplit(gsub('\\s+$','',gsub(' At | - .*',' ',paste(TITLES,collapse = " ")))," ")[[1]]
-
+      
       scoreHTMLnba <- get_nba()
-
+      
       while(length(scoreHTMLnba) <= 1){
         print('nba failed once')
         scoreHTMLnba <- get_nba()
       }
-
+      
       scoreHTMLncaa <- get_ncaa()
       while(length(scoreHTMLncaa) == 0){
         print('NCAA failed once')
         scoreHTMLncaa <- get_ncaa()
       }
-
+      
       if(length(TITLES) != 0 || length(htmlNodes) != 0){
-
+        
         overs = c()
         win_1 <- c()
         win_2 <- c()
@@ -159,67 +156,67 @@ server <- shinyServer(function(input, output) {
         game_time <- c()
         if(length(TITLES) > 0){
           for(tt in 1:length(TITLES)){
-
+            
             prog_amount <- tt / length(TITLES)
-
+            
             incProgress(amount = prog_amount)
-
+            
             ## GET TIME ##
-
+            
             title_comp_ii <- strsplit(gsub('\\s+$','',gsub(' At | - .*',' ',TITLES[tt]))," ")[[1]]
-
+            
             game_type[tt] <- ''
             if(length(grep(paste(paste0("^",title_comp_ii,"$"),collapse = "|"),scoreHTMLnba)) > 0){
-
+              
               game_type[tt] <- 'NBA'
-
+              
               game_ii <- min(grep(paste(title_comp_ii,collapse = "|"),scoreHTMLnba))-1
-
+              
               if(game_ii == 0){
                 game_time[tt] <- 'NA'
               } else{
                 game_time[tt] <- scoreHTMLnba[game_ii]
-
+                
                 if(game_time[tt] %in% title_comp || game_time[tt] == "Final" ){
                   game_time[tt] <- "NA"
-
+                  
                 }
               }
-
+              
               if(!(grepl('[^0-9]',game_time[tt]))){
                 game_time[tt] <- "NA"
               }
-
+              
             } else{
-
+              
               game_type[tt] <- 'NCAA'
-
+              
               greps <- c()
               for(tit in title_comp_ii){
                 greps <- c(greps,grep(tit,scoreHTMLncaa))
               }
-
+              
               gTab <- table(greps)
-
+              
               if(max(gTab) == 1 || length(greps) == 0){
                 game_time[tt] <- "NA"
               } else{
                 grep_ii <- names(gTab)[which(as.numeric(gTab) == max(as.numeric(gTab)))]
-
+                
                 game_time[tt] <- scoreHTMLncaa[as.numeric(grep_ii) + 1]
-
+                
               }
-
+              
               if(!(grepl('[^0-9]',game_time[tt]))){
                 game_time[tt] <- "NA"
               }
             }
-
+            
             page <- HREFS[tt]
             html <- read_html(page)
             htmlNodes <- html_nodes(html,'.title.left,.date')
             htmlTitles <- html_text(htmlNodes)
-
+            
             if(length(as.numeric(html_text(html_nodes(html,'#total-pts_TEAM_2'))) + as.numeric(html_text(html_nodes(html,'#total-pts_TEAM_1')))) != 0){
               points[tt] <- as.character(as.numeric(html_text(html_nodes(html,'#total-pts_TEAM_2'))) + as.numeric(html_text(html_nodes(html,'#total-pts_TEAM_1'))))
             } else{
@@ -229,13 +226,13 @@ server <- shinyServer(function(input, output) {
                 points[tt] <- 'NA'
               }
             }
-
+            
             if(length(html_text(html_nodes(html,'#period_text'))) > 0){
               period[tt] <- gsub('^Quarter ','Q',html_text(html_nodes(html,'#period_text')))
             } else{
               period[tt] <- 'NA'
-            }
-
+            }  
+            
             over <- ""
             if("Total Points Scored" %in% htmlTitles || "Total Points" %in% htmlTitles){
               td <- html_nodes(html,'td')
@@ -243,10 +240,10 @@ server <- shinyServer(function(input, output) {
               td_over <- gsub('^Over ','',td_text[grep('^Over ',td_text)[1]])
               over <- td_over
             } else{
-              over <- 'NA'
+              over <- 'NA' 
             }
             overs[tt] <- over
-
+            
             win_1[tt] <- ''
             win_2[tt] <- ''
             if('Match' %in% htmlTitles){
@@ -255,14 +252,14 @@ server <- shinyServer(function(input, output) {
                 match_text <- html_text(td_match)
                 match_ii <- grep(paste(title_comp_ii,collapse = "|"),match_text,value = T)
                 match_ii <- grep("\n",match_ii,value = T)
-
+                
                 w1 <- strsplit(match_ii[1]," ")[[1]]
                 w2 <- strsplit(match_ii[2]," ")[[1]]
                 win_1[tt] <- strsplit(w1[length(w1)],"\r")[[1]][1]
                 win_2[tt] <- strsplit(w2[length(w2)],"\r")[[1]][1]
               }
             }
-
+            
             hand[tt] <- ''
             if('Handicap Betting' %in% htmlTitles || 'Handicap' %in% htmlTitles){
               td <- html_nodes(html,'td')
@@ -270,15 +267,15 @@ server <- shinyServer(function(input, output) {
               hand_ii <- grep('\\+',hand_text,value = T)
               hand_ii <- grep('\n',hand_ii,invert = T,value = T)
               hand_te <- gsub('\\+','',gsub('..* +','',hand_ii))[1]
-
+              
               hand[tt] <- hand_te
             }
-
+            
             print(tt)
           }
-
+          
           TITLES <- paste0(TITLES,"  -  ",format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%a %b %d"),'.csv')
-
+          
           for(tt in 1:length(TITLES)){
             df_title <- data.frame(format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X"),game_time[tt],period[tt],points[tt],overs[tt],win_1[tt],win_2[tt],hand[tt],game_type[tt])
             colnames(df_title) <- c('Time','GameTime','Period','Points','Line','MatchAway','MatchHome','HandicapLine','Type')
@@ -300,8 +297,11 @@ server <- shinyServer(function(input, output) {
             }
           }
         }
+        
+      } else{
+        print("No US Games")
       }
-    
+    })
     
     last_up <- format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X")
     
@@ -421,42 +421,23 @@ server <- shinyServer(function(input, output) {
       points_df_na <- game_data
     }
     
-    output$plot1 <- renderPlotly({
+    output$plot1 <- renderPlot({
       if(length(which(!is.na(points_df_na$Line))) >= 5){
+        plot(points_df_na$Line,xlab = "Time",type = "o",ylab = "Line",col = 'red',axes = F)
+        axis(1,at = 1:length(points_df_na$Line),labels = points_df_na$GameTime,las = T)
+        axis(2,at = min(points_df_na$Line,na.rm = T):max(points_df_na$Line,na.rm = T),labels = min(points_df_na$Line,na.rm = T):max(points_df_na$Line,na.rm = T),las = T)
         
-          p <- ggplot(data=points_df_na, aes(x = GameTime, y = Line, group=1)) +
-            geom_line(colour="red", size=0.5) +
-            geom_point(colour = "red",size = 1) +
-            theme_bw() +
-            theme(axis.text.x = element_text(angle = 45, hjust = 1))
-          
-          ggplotly(p)
-          
       } else{
-          
-          dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
-          df <- data.frame()
-          ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
-          
+        plot(1:10,type = "n",axes = F,xlab = "",ylab = "")
+        text(5,7,paste("Not Enough Data Yet..",round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100,"% Gathered."),cex = 1.2)
       }
     })
-    
-    output$plot2 <- renderPlotly({
+    output$plot2 <- renderPlot({
       if(length(which(!is.na(points_df_na$Line))) >= 5){
-        p <- ggplot(data=points_df_na, aes(x = GameTime, y = PointsInMinute, group=1)) +
-          geom_bar(stat = "identity",colour = "red", fill = "red") + 
-          theme(axis.ticks.x = element_blank()) +
-          theme_bw() +
-          theme(axis.title = element_blank()) +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-        ggplotly(p)
-      } else{
-        
-        dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
-        df <- data.frame()
-        ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
-      
+        barplot(points_df_na$PointsInMinute,names.arg = gsub('m','',gsub(' - ','-',points_df_na$GameTime)),col = 'blue',ylab = "Points Per Minute",xlab = "Time")
+      } else {
+        plot(1:10,type = "n",axes = F,xlab = "",ylab = "")
+        text(5,7,paste("Not Enough Data Yet..",round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100,"% Gathered."),cex = 1.2)
       }
     })
     
@@ -473,57 +454,7 @@ server <- shinyServer(function(input, output) {
     curr_points <- game_data$Points[nrow(game_data)]
     curr_gametime <- game_data$GameTime[nrow(game_data)]
     
-    if(nrow(game_data) > 0){
-      if((length(curr_gametime) == 0 || is.na(curr_gametime)) || (length(curr_points) == 0 || is.na(curr_points)) || (length(curr_line) ==0 || is.na(curr_gametime))){
-        curr_line <- "NA"
-        curr_points <- "NA"
-        curr_gametime <- "NA"
-        time.left <- "NA"
-        mins.left <- "NA"
-        max.points <- "NA"
-        curr_ppm <- "NA"
-        total_at_curr <- "NA"
-        req_rate <- "NA"
-      } else{
-        
-        if(game_data$Type[1] == 'NCAA'){
-          mins.left <- strsplit(strsplit(curr_gametime," ")[[1]][1],':')[[1]][1]
-          if(length(grep('H2',curr_gametime)) > 0){
-            time.left <- as.numeric(mins.left)
-          } else{
-            time.left <- 20 + as.numeric(mins.left)
-          }
-        } else{
-          mins.left <- strsplit(strsplit(curr_gametime," ")[[1]][1],':')[[1]][1]
-          if(mins.left == "Half"){
-            time.left <- 20
-          }
-          if(length(grep('Q4',curr_gametime)) > 0){
-            time.left <- as.numeric(mins.left)
-          } else{
-            if(length(grep('Q3',curr_gametime)) > 0){
-              time.left <- 12 + as.numeric(mins.left)
-            } else{
-              if(length(grep('Q2',curr_gametime)) > 0){
-                time.left <- 24 + as.numeric(mins.left)
-              } else{
-                if(length(grep('Q1',curr_gametime)) > 0){
-                  time.left <- 36 + as.numeric(mins.left)
-                } 
-              }
-            }
-          }
-        }
-        
-        time.left <- as.numeric(time.left)
-        
-        max.points <- max(points_df$Points,na.rm = T)
-        
-        curr_ppm <-  round(max.points / max(which(points_df$Points == max.points)),digits = 2)
-        total_at_curr <- round(curr_points + curr_ppm * time.left,digits = 0)
-        req_rate <- round((curr_line-curr_points) / time.left,digits = 2)
-      }
-    } else{
+    if((length(curr_gametime) == 0 || is.na(curr_gametime)) || (length(curr_points) == 0 || is.na(curr_points)) || (length(curr_line) ==0 || is.na(curr_gametime))){
       curr_line <- "NA"
       curr_points <- "NA"
       curr_gametime <- "NA"
@@ -533,8 +464,46 @@ server <- shinyServer(function(input, output) {
       curr_ppm <- "NA"
       total_at_curr <- "NA"
       req_rate <- "NA"
+    } else{
+
+      if(game_data$Type[1] == 'NCAA'){
+        mins.left <- strsplit(strsplit(curr_gametime," ")[[1]][1],':')[[1]][1]
+        if(length(grep('H2',curr_gametime)) > 0){
+          time.left <- as.numeric(mins.left)
+        } else{
+          time.left <- 20 + as.numeric(mins.left)
+        }
+      } else{
+        mins.left <- strsplit(strsplit(curr_gametime," ")[[1]][1],':')[[1]][1]
+        if(mins.left == "Half"){
+          time.left <- 20
+        }
+        if(length(grep('Q4',curr_gametime)) > 0){
+          time.left <- as.numeric(mins.left)
+        } else{
+          if(length(grep('Q3',curr_gametime)) > 0){
+            time.left <- 12 + as.numeric(mins.left)
+          } else{
+            if(length(grep('Q2',curr_gametime)) > 0){
+              time.left <- 24 + as.numeric(mins.left)
+            } else{
+              if(length(grep('Q1',curr_gametime)) > 0){
+                time.left <- 36 + as.numeric(mins.left)
+              } 
+            }
+          }
+        }
+      }
+      
+      time.left <- as.numeric(time.left)
+      
+      max.points <- max(points_df$Points,na.rm = T)
+      
+      curr_ppm <-  round(max.points / max(which(points_df$Points == max.points)),digits = 2)
+      total_at_curr <- round(curr_points + curr_ppm * time.left,digits = 0)
+      req_rate <- round((curr_line-curr_points) / time.left,digits = 2)
     }
-    
+
     output$text6 <- renderText({ 
       paste0("Game: ",strsplit(gameid," - ")[[1]][1])
     })
@@ -564,9 +533,8 @@ server <- shinyServer(function(input, output) {
     })
     
   })
-  })
-  
-  
+
+
 })
 
 shinyApp(ui = ui, server = server)
