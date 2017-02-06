@@ -421,6 +421,10 @@ server <- shinyServer(function(input, output) {
       points_df_na <- game_data
     }
     
+    points_df_na$GameTime <- as.character(points_df_na$GameTime)
+    #Then turn it back into an ordered factor
+    points_df_na$GameTime <- factor(points_df_na$GameTime, levels=unique(points_df_na$GameTime))
+    
     output$plot1 <- renderPlotly({
       if(length(which(!is.na(points_df_na$Line))) >= 5){
         
