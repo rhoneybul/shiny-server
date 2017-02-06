@@ -48,33 +48,27 @@ ui <- shinyUI(fluidPage(
                )
              ),
              
+             tags$hr(),
+             
              fluidRow(
-               column(8,
+               column(12,
                       tags$h3('Over/Under',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
-                      plotlyOutput("plot1")
-               ),
-               column(4,
-                      tags$h4('Game Stats',style = 'text-align:center;padding-top:30px;font-weight:200'),
-                      tags$h4(textOutput("text1"),style = "padding-top:35px;font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;"),
-                      tags$h4(textOutput("text2"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text3"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text4"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text5"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text6"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text7"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text8"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;'),
-                      tags$h4(textOutput("text9"),style = 'font-weight:200;font-size:0.8em;border-bottom: 1px solid gray;padding-bottom: 8px;')
+                      tags$h4(textOutput('gameText'),style = 'text-align:center;padding-top:21px;font-size:24px;font-weight:200'),
+                      plotlyOutput("plot1",width = '91%')
                )
              ),
              
              fluidRow(
-               
-               column(5,align = 'center',
-                      tableOutput('table')
-               ),
-               column(7,
+               column(12,
                       tags$h3('Points Per Minute',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
                       plotlyOutput('plot2')     
+               )
+             ),
+             
+             fluidRow(
+               column(12,
+                      tags$h3('BET365 Live in Play',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
+                      HTML("<center><iframe src = 'https://www.bet365.com.au/#/IP/'></iframe></center>")
                )
              )
              
@@ -343,8 +337,8 @@ server <- shinyServer(function(input, output) {
           }
         }
         
-        points_df <- data.frame(game_times,NA,NA,NA)
-        colnames(points_df) <- c("GameTime","Points","PointsInMinute","Line")
+        points_df <- data.frame(game_times,NA,NA,NA,NA,NA)
+        colnames(points_df) <- c("GameTime","Points","PointsInMinute","Line","PPM","RPPM")
         
         for(ii in 1:nrow(points_df)){
           per <- strsplit(as.character(points_df$GameTime[ii])," - ")[[1]][1]
@@ -360,6 +354,9 @@ server <- shinyServer(function(input, output) {
           
           points_df$Points[ii] <- max(points_ii)
           points_df$Line[ii] <- max(line_ii)
+          
+          points_df$PPM[ii] <- points_df$Points[ii] / ii
+          points_df$RPPM[ii] <- (points_df$Line[ii] - points_df$Points[ii]) / (nrow(points_df) - ii)
           
         }
         
@@ -384,8 +381,8 @@ server <- shinyServer(function(input, output) {
           }
         }
         
-        points_df <- data.frame(game_times,NA,NA,NA)
-        colnames(points_df) <- c("GameTime","Points","PointsInMinute","Line")
+        points_df <- data.frame(game_times,NA,NA,NA,NA,NA)
+        colnames(points_df) <- c("GameTime","Points","PointsInMinute","Line","PPM","RPPM")
         
         for(ii in 1:nrow(points_df)){
           per <- strsplit(as.character(points_df$GameTime[ii])," - ")[[1]][1]
@@ -401,6 +398,9 @@ server <- shinyServer(function(input, output) {
           
           points_df$Points[ii] <- max(points_ii)
           points_df$Line[ii] <- max(line_ii)
+          
+          points_df$PPM[ii] <- points_df$Points[ii] / ii
+          points_df$RPPM[ii] <- (points_df$Line[ii] - points_df$Points[ii]) / (nrow(points_df) - ii)
           
         }
         
@@ -420,53 +420,6 @@ server <- shinyServer(function(input, output) {
       points_df <- game_data
       points_df_na <- game_data
     }
-    
-    points_df_na$GameTime <- as.character(points_df_na$GameTime)
-    #Then turn it back into an ordered factor
-    points_df_na$GameTime <- factor(points_df_na$GameTime, levels=unique(points_df_na$GameTime))
-    
-    output$plot1 <- renderPlotly({
-      if(length(which(!is.na(points_df_na$Line))) >= 5){
-        
-          p <- ggplot(data=points_df_na, aes(x = GameTime, y = Line, group=1)) +
-            geom_line(colour="red", size=0.5) +
-            geom_point(colour = "red",size = 1) +
-            theme_bw() +
-            theme(axis.text.x = element_text(angle = 45, hjust = 1))
-          
-          ggplotly(p)
-          
-      } else{
-          
-          dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
-          df <- data.frame()
-          ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
-          
-      }
-    })
-    
-    output$plot2 <- renderPlotly({
-      if(length(which(!is.na(points_df_na$Line))) >= 5){
-        p <- ggplot(data=points_df_na, aes(x = GameTime, y = PointsInMinute, group=1)) +
-          geom_bar(stat = "identity",colour = "red", fill = "red") + 
-          theme(axis.ticks.x = element_blank()) +
-          theme_bw() +
-          theme(axis.title = element_blank()) +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-        ggplotly(p)
-      } else{
-        
-        dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
-        df <- data.frame()
-        ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
-      
-      }
-    })
-    
-    colnames(points_df) <- c('Game Time','Points','Points in Minute','Line')
-    
-    output$table <- renderTable(points_df)
     
     if(any(is.na(game_data$Points))){
       n_na <- length(which(is.na(game_data$Points)))
@@ -488,6 +441,8 @@ server <- shinyServer(function(input, output) {
         curr_ppm <- "NA"
         total_at_curr <- "NA"
         req_rate <- "NA"
+        curr_variance <- "NA"
+        ave_line <- "NA"
       } else{
         
         if(game_data$Type[1] == 'NCAA'){
@@ -523,6 +478,8 @@ server <- shinyServer(function(input, output) {
         
         max.points <- max(points_df$Points,na.rm = T)
         
+        ave_line <- round(mean(game_data$Line,na.rm = T),digits = 0) + 0.5
+        curr_variance <- curr_line - ave_line
         curr_ppm <-  round(max.points / max(which(points_df$Points == max.points)),digits = 2)
         total_at_curr <- round(curr_points + curr_ppm * time.left,digits = 0)
         req_rate <- round((curr_line-curr_points) / time.left,digits = 2)
@@ -537,7 +494,71 @@ server <- shinyServer(function(input, output) {
       curr_ppm <- "NA"
       total_at_curr <- "NA"
       req_rate <- "NA"
+      curr_variance <- "NA"
+      ave_line <- "NA"
     }
+    
+    points_df_na$GameTime <- as.character(points_df_na$GameTime)
+    #Then turn it back into an ordered factor
+    points_df_na$GameTime <- factor(points_df_na$GameTime, levels=unique(points_df_na$GameTime))
+    
+    if(!all(is.na(points_df_na$PointsInMinute))){
+      if(any(points_df_na$PointsInMinute[which(!is.na(points_df_na$PointsInMinute))] < 0)){
+        points_df_na$PointsInMinute[which(points_df_na$PointsInMinute < 0)] <- NA
+      }
+    }
+    
+    output$plot1 <- renderPlotly({
+      if(length(which(!is.na(points_df_na$Line))) >= 5){
+        
+          p <- ggplot(data=points_df_na, aes(x = GameTime, y = Line, group=1)) +
+            geom_line(colour="red", size=0.5) +
+            geom_point(colour = "red",size = 1) +
+            theme_bw() +
+            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+            geom_hline(yintercept=ave_line) + 
+            ggplot2::annotate("text",x = nrow(points_df_na) / 2,y = max(points_df_na$Line,na.rm = T) * 1.01,label = paste0('Game Time: ',curr_gametime,'   Points: ',curr_points,'   PPM: ',curr_ppm,'   Current Line: ',curr_line,'    Average Line: ',ave_line,'    Variance: ',curr_variance),size = 5)
+            
+          ggplotly(p)
+          
+      } else{
+          
+          dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
+          df <- data.frame()
+          ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
+          
+      }
+    })
+    
+    output$plot2 <- renderPlotly({
+      if(length(which(!is.na(points_df_na$Line))) >= 5){
+        p <- ggplot(points_df_na, aes(x= GameTime,y=PointsInMinute,group = "1")) + 
+          geom_bar(stat = "identity",fill = '#d9dbdd',aes(colour = "Points")) + 
+          geom_line(aes(y = PPM,colour = "PPM")) + 
+          geom_line(aes(y = RPPM,colour = "Req. PPM")) + 
+          scale_color_manual(values=c("Points"="#d9dbdd", "PPM"="green","Req. PPM"="blue")) + 
+          theme_bw() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+          theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) 
+        
+        ggplotly(p)
+      } else{
+        
+        dat.perc <- as.character(round(length(which(!is.na(points_df_na$Line))) / 5,digits = 2) * 100)
+        df <- data.frame()
+        ggplot(df) + geom_point() + theme_bw() + theme(panel.grid.major = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text = element_blank()) + theme(axis.ticks = element_blank()) + theme(panel.border = element_blank()) + xlim(0, 10) + ylim(0, 100) + ggplot2::annotate("text",x = 5,y = 80,label = paste0(dat.perc,"% of data required for visualisation"),size = 7)
+      
+      }
+    })
+    
+    colnames(points_df) <- c('Game Time','Points','Points in Minute','Line','PPM','Req. PPM')
+    
+    output$gameText <- renderText({
+      strsplit(gameid," - ")[[1]][1]
+    })
+    
+    output$table <- renderTable(points_df)
     
     output$text6 <- renderText({ 
       paste0("Game: ",strsplit(gameid," - ")[[1]][1])

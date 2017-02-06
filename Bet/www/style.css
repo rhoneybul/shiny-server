@@ -13,6 +13,18 @@
   padding: 0;
 }
 
+iframe {
+  margin-top: 20px;
+  height:500px;
+  width: 80%;
+  margin-bottom: 100px;
+  border: none;
+}
+
+g.annotation {
+  display:none;
+}
+
 div.item {
   font-size: 0.9em;
 }
