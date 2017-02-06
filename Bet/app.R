@@ -3,6 +3,8 @@ library(rvest)
 library(ggplot2)
 library(plotly)
 
+pdf(NULL)
+
 options(warn = -1)
 
 if(!dir.exists('Data')){
