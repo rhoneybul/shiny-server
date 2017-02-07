@@ -511,7 +511,7 @@ server <- shinyServer(function(input, output) {
     
     gametimes <- as.character(points_df_na$GameTime)
     
-    if(!(all(game_data$Type[1]))) {
+    if(!(all(is.na(game_data$Type)))){
       if(as.character(game_data$Type[1]) == 'NBA'){
         gametimes[grep(" 12m$| 6m$",gametimes,invert = T)] <- ""
         game_breaks <- c(13,25,37,48)
