@@ -3,6 +3,8 @@ library('rvest')
 #setwd("~/Desktop/RTH/Clients/Shiny-Server/Bet")
 setwd("/srv/shiny-server/Bet")
 
+#write.csv('takjta',paste0('Data/',Sys.time()))
+
 url <- 'http://www.sportsbet.com.au/live-betting'
 
 html <- read_html(url)
