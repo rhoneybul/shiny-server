@@ -55,7 +55,8 @@ ui <- shinyUI(fluidPage(
              fluidRow(
                column(12,
                       tags$h3('Over/Under',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
-                      tags$h4(textOutput('gameText'),style = 'text-align:center;padding-top:21px;font-size:24px;font-weight:200'),
+                      tags$h4(textOutput('gameText'),style = 'text-align:center;padding-top:21px;font-size:24px;font-weight:200;padding-top:15px'),
+                      tags$h5(textOutput('lastUpdated'),style = 'text-align:center;font-weight:200'),
                       plotlyOutput("plot1",width = '91%')
                )
              ),
@@ -279,6 +280,10 @@ server <- shinyServer(function(input, output) {
       # 
       # 
     last_up <- format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X")
+    
+    output$lastUpdated <- renderText(
+      paste0('Last Updated: ',last_up,' AWST')
+    )
     
     gameid <- as.character(input$game)
     
