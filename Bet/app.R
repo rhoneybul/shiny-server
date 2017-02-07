@@ -55,7 +55,8 @@ ui <- shinyUI(fluidPage(
              fluidRow(
                column(12,
                       tags$h3('Over/Under',style = 'text-align:center;padding-top:20px;font-weight:200;font-size:1.2em'),
-                      tags$h4(textOutput('gameText'),style = 'text-align:center;padding-top:21px;font-size:24px;font-weight:200'),
+                      tags$h4(textOutput('gameText'),style = 'text-align:center;padding-top:21px;font-size:24px;font-weight:200;padding-top:15px'),
+                      tags$h5(textOutput('lastUpdated'),style = 'text-align:center;font-weight:200'),
                       plotlyOutput("plot1",width = '91%')
                )
              ),
@@ -278,7 +279,20 @@ server <- shinyServer(function(input, output) {
       # }
       # 
       # 
+      
+    gamesText_df <- read.csv("Data/Current_Games.csv")
+    
+    games_HTML <- paste0("<h4 id= 'current_games'>",paste(gamesText_df$curr_game_df,collapse = "</h4><h4 id = 'current_games'>"),"</h4>")
+    
+    output$gamesText <- renderUI(
+      HTML(games_HTML)
+    )
+    
     last_up <- format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X")
+    
+    output$lastUpdated <- renderText(
+      paste0('Last Updated: ',last_up,' AWST')
+    )
     
     gameid <- as.character(input$game)
     
@@ -451,7 +465,9 @@ server <- shinyServer(function(input, output) {
               } else{
                 if(length(grep('Q1',curr_gametime)) > 0){
                   time.left <- 36 + as.numeric(mins.left)
-                } 
+                } else {
+                  time.left <- 'NA'
+                }
               }
             }
           }
@@ -493,18 +509,37 @@ server <- shinyServer(function(input, output) {
     
     incProgress(amount =0.7)
     
+    gametimes <- as.character(points_df_na$GameTime)
+    
+    if(!(all(game_data$Type[1]))) {
+      if(as.character(game_data$Type[1]) == 'NBA'){
+        gametimes[grep(" 12m$| 6m$",gametimes,invert = T)] <- ""
+        game_breaks <- c(13,25,37,48)
+      } else {
+        gametimes[grep(" 0m$| 20m$| 10m$",gametimes,invert = T)] <- ""
+        game_breaks <- c(11,21,31,40)
+      }
+    }
+    
     output$plot1 <- renderPlotly({
       if(length(which(!is.na(points_df_na$Line))) >= 5){
         
-          p <- ggplot(data=points_df_na, aes(x = GameTime, y = Line, group=1)) +
-            geom_line(colour="red", size=0.5) +
-            geom_point(colour = "red",size = 1) +
+          points_df_na$Line <- as.numeric(points_df_na$Line)
+          points_df_na$GameTime <- as.numeric(points_df_na$GameTime)
+          
+          p <- ggplot(points_df_na) +
+            geom_line(aes(x = GameTime, y = Line),colour = 'red',size = 0.5) +
+            geom_point(aes(x = GameTime, y = Line),colour = 'red',size = 0.5) +
             theme_bw() +
-            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_x_continuous(breaks=1:nrow(points_df_na), labels=gametimes) +
             theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
             geom_hline(yintercept=ave_line) + 
-            ggplot2::annotate("text",x = nrow(points_df_na) / 2,y = max(points_df_na$Line,na.rm = T) * 1.01,label = paste0('Game Time: ',curr_gametime,'   Points: ',curr_points,'   PPM: ',curr_ppm,'   Current Line: ',curr_line,'    Average Line: ',ave_line,'    Variance: ',curr_variance),size = 5)
-            
+            ggplot2::annotate("rect", xmin=game_breaks[1], xmax=game_breaks[2], ymin=min(points_df_na$Line,na.rm = T) * 0.99, ymax=max(points_df_na$Line,na.rm = T) * 1.01, alpha=0.1, fill="grey") + 
+            ggplot2::annotate("rect", xmin=game_breaks[3], xmax=game_breaks[4], ymin=min(points_df_na$Line,na.rm = T) * 0.99,ymax=max(points_df_na$Line,na.rm = T) * 1.01, alpha=0.1, fill="grey") + 
+            ggplot2::annotate("rect", xmin=1, xmax=game_breaks[1], ymin=min(points_df_na$Line,na.rm = T) * 0.99, ymax=max(points_df_na$Line,na.rm = T) * 1.01, alpha=0.3, fill="grey") + 
+            ggplot2::annotate("rect", xmin=game_breaks[2], xmax=game_breaks[3], ymin=min(points_df_na$Line,na.rm = T) * 0.99,ymax=max(points_df_na$Line,na.rm = T) * 1.01, alpha=0.3, fill="grey") + 
+            ggplot2::annotate("text",x = nrow(points_df_na) / 2,y = max(points_df_na$Line,na.rm = T) * 1.015,label = paste0('Game Time: ',curr_gametime,'   Points: ',curr_points,'   PPM: ',curr_ppm,'   Current Line: ',curr_line,'    Average Line: ',ave_line,'    Variance: ',curr_variance),size = 5)
+
           ggplotly(p)
           
       } else{
@@ -520,13 +555,25 @@ server <- shinyServer(function(input, output) {
     
     output$plot2 <- renderPlotly({
       if(length(which(!is.na(points_df_na$Line))) >= 5){
-        p <- ggplot(points_df_na, aes(x= GameTime,y=PointsInMinute,group = "1")) + 
-          geom_bar(stat = "identity",fill = '#d9dbdd',aes(colour = "Points")) + 
-          geom_line(aes(y = PPM,colour = "PPM")) + 
-          geom_line(aes(y = RPPM,colour = "Req. PPM")) + 
-          scale_color_manual(values=c("Points"="#d9dbdd", "PPM"="green","Req. PPM"="blue")) + 
+        
+        points_df_na$GameTime <- as.numeric(points_df_na$GameTime)
+        points_df_na$PointsInMinute <- as.numeric(points_df_na$PointsInMinute)
+        points_df_na$Points <- as.numeric(points_df_na$Points)
+        
+        p <- ggplot(points_df_na) + 
+          # geom_bar(stat = "identity",fill = '#d9dbdd',aes(colour = "Points")) + 
+          geom_line(aes(x = GameTime, y = PointsInMinute,colour = "Points in Minute")) + 
+          geom_line(aes(x = GameTime, y = PPM,colour = "PPM")) + 
+          geom_line(aes(x = GameTime, y = RPPM,colour = "Req. PPM")) + 
+          scale_color_manual(values=c("Points in Minute"="darkred", "PPM"="darkgreen","Req. PPM"="darkblue")) + 
           theme_bw() +
-          theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+          scale_x_continuous(breaks=1:nrow(points_df_na), labels=gametimes) +
+          ggplot2::annotate("rect", xmin=game_breaks[1], xmax=game_breaks[2], ymin=0, ymax=points_df_na$PointsInMinute, alpha=0.1, fill="grey") + 
+          ggplot2::annotate("rect", xmin=game_breaks[3], xmax=game_breaks[4], ymin=0,ymax=points_df_na$PointsInMinute, alpha=0.1, fill="grey") + 
+          ggplot2::annotate("rect", xmin=1, xmax=game_breaks[1], ymin=0, ymax=points_df_na$PointsInMinute, alpha=0.3, fill="grey") + 
+          ggplot2::annotate("rect", xmin=game_breaks[2], xmax=game_breaks[3], ymin=0,ymax=points_df_na$PointsInMinute, alpha=0.3, fill="grey") + 
+          
+          
           theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) 
         
         ggplotly(p)
