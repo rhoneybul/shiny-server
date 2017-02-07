@@ -1,6 +1,7 @@
 library('rvest')
 
-setwd("~/Desktop/RTH/Clients/Shiny-Server/Bet")
+#setwd("~/Desktop/RTH/Clients/Shiny-Server/Bet")
+setwd("/srv/shiny-server/Bet")
 
 url <- 'http://www.sportsbet.com.au/live-betting'
 
@@ -182,6 +183,14 @@ TITLES <- TITLES[-to_remove]
       }
       
       TITLES <- paste0(TITLES,"  -  ",format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%a %b %d"),'.csv')
+      
+      curr_game_df <- c()
+      for(tt in 1:length(TITLES)){
+        curr_game_df[tt] <- paste0(strsplit(TITLES[tt],"  - ")[[1]][1],', ',game_time[tt],', ',overs[tt])
+      }
+      curr_game_df <- data.frame(curr_game_df)
+      
+      write.csv(curr_game_df,"Data/Current_Games.csv",row.names = F)
       
       for(tt in 1:length(TITLES)){
         df_title <- data.frame(format(as.POSIXlt(Sys.time(), "Australia/Perth"),"%X"),game_time[tt],period[tt],points[tt],overs[tt],win_1[tt],win_2[tt],hand[tt],game_type[tt])
