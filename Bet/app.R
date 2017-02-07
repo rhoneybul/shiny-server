@@ -511,12 +511,14 @@ server <- shinyServer(function(input, output) {
     
     gametimes <- as.character(points_df_na$GameTime)
     
-    if(as.character(game_data$Type[1]) == 'NBA'){
-      gametimes[grep(" 12m$| 6m$",gametimes,invert = T)] <- ""
-      game_breaks <- c(13,25,37,48)
-    } else {
-      gametimes[grep(" 0m$| 20m$| 10m$",gametimes,invert = T)] <- ""
-      game_breaks <- c(11,21,31,40)
+    if(!(all(game_data$Type[1]))) {
+      if(as.character(game_data$Type[1]) == 'NBA'){
+        gametimes[grep(" 12m$| 6m$",gametimes,invert = T)] <- ""
+        game_breaks <- c(13,25,37,48)
+      } else {
+        gametimes[grep(" 0m$| 20m$| 10m$",gametimes,invert = T)] <- ""
+        game_breaks <- c(11,21,31,40)
+      }
     }
     
     output$plot1 <- renderPlotly({
