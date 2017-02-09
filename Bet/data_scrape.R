@@ -54,14 +54,6 @@ TITLES <- TITLES[-to_remove]
     scoreHTMLncaa <- get_ncaa()
   }
   
-  ##If no current games update files
-  
-  if(length(TITLES) == 0){
-    curr_game_df <- c('No Current Games')
-    curr_game_df <- data.frame(curr_game_df)
-    write.csv(curr_game_df,"Data/Current_Games.csv",row.names = F)
-  }
-  
   if(length(TITLES) != 0 || length(htmlNodes) != 0){
     
     overs = c()
