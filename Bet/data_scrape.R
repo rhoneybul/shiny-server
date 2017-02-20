@@ -17,18 +17,30 @@ to_remove <- c(which(is.na(TITLES)),grep('^Show all ',TITLES),grep(' more Market
 
 HREFS <- HREFS[-to_remove]
 TITLES <- TITLES[-to_remove]
+
+print(TITLES)
   
   ## FUNCTIONS
   
   get_nba= function(){
     espn <- 'https://sports.yahoo.com/nba/scoreboard/'
     
-    espn <- read_html(espn)
-    espn <- html_nodes(espn,'span')
-    scoreHTMLnba <- html_text(espn)
+    #check for no games scheduled
     
-    scoreHTMLnba <- scoreHTMLnba[5:length(scoreHTMLnba)]
-    scoreHTMLnba <- scoreHTMLnba[-which(scoreHTMLnba == "")]
+    espn <- read_html(espn)
+    
+    no_games <- html_nodes(espn,'div#scoreboard-group-2 div')
+    
+    if("No Games Scheduled" %in% html_text(no_games)){
+      scoreHTMLnba <- 'NOGAMES'
+    } else{
+      espn <- html_nodes(espn,'span')
+      scoreHTMLnba <- html_text(espn)
+      
+      scoreHTMLnba <- scoreHTMLnba[5:length(scoreHTMLnba)]
+      scoreHTMLnba <- scoreHTMLnba[-which(scoreHTMLnba == "")]
+    }
+    
     return(scoreHTMLnba)
   }
   
@@ -75,6 +87,10 @@ TITLES <- TITLES[-to_remove]
     if(length(TITLES) > 0){
       for(tt in 1:length(TITLES)){
         
+        if( TITLES[tt] == "East at West" || TITLES[tt] == "West at East" ) {
+          next()
+        }
+        
         prog_amount <- tt / length(TITLES)
         
         ## GET TIME ##
@@ -115,6 +131,7 @@ TITLES <- TITLES[-to_remove]
           gTab <- table(greps)
           
           if(max(gTab) == 1 || length(greps) == 0){
+            
             game_time[tt] <- "NA"
           } else{
             grep_ii <- names(gTab)[which(as.numeric(gTab) == max(as.numeric(gTab)))]
