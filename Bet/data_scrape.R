@@ -3,7 +3,19 @@ library('rvest')
 #setwd("~/Desktop/RTH/Clients/Shiny-Server/Bet")
 setwd("/srv/shiny-server/Bet")
 
-#write.csv('takjta',paste0('Data/',Sys.time()))
+if(file.exists('Data/cron-log.csv')) {
+  log <- read.csv('Data/cron-log.csv')
+  log <- apply(log,2,as.character)
+  time <- data.frame(Sys.time())
+  time <- t(data.frame(apply(time,2,as.character)))
+  colnames(time) <- "time"
+  log <- rbind(log,time)
+  write.csv(log,'Data/cron-log.csv',row.names = F)
+} else{
+  time <- Sys.time()
+  log <- data.frame(time)
+  write.csv(log,'Data/cron-log.csv',row.names = F)
+}
 
 url <- 'http://www.sportsbet.com.au/live-betting'
 
@@ -57,7 +69,7 @@ print(TITLES)
   
   scoreHTMLnba <- get_nba()
   
-  while(length(scoreHTMLnba) <= 1){
+  while(length(scoreHTMLnba) <= 1 && scoreHTMLnba != 'NOGAMES'){
     print('nba failed once')
     scoreHTMLnba <- get_nba()
   }
